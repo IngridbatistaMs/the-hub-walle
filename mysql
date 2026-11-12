@@ -1,0 +1,94 @@
+CREATE DATABASE IF NOT EXISTS the_hub_walle; 
+USE the_hub_walle;
+CREATE TABLE clientes (    
+id INT AUTO_INCREMENT PRIMARY KEY,    
+nome_completo VARCHAR(100) NOT NULL,    
+cpf VARCHAR(14) UNIQUE NOT NULL,    
+email VARCHAR(100),    
+telefone VARCHAR(20) 
+);
+
+CREATE TABLE usuarios (    
+id INT AUTO_INCREMENT PRIMARY KEY,    
+nome_completo VARCHAR(100) NOT NULL,    
+cpf VARCHAR(14) UNIQUE NOT NULL,    
+email VARCHAR(100),    
+telefone VARCHAR(20),    
+nivel_acesso VARCHAR(50) NOT NULL,
+senha VARCHAR(100) NOT NULL);
+
+CREATE TABLE veiculos (   
+id INT AUTO_INCREMENT PRIMARY KEY,    
+placa VARCHAR(10) UNIQUE NOT NULL,    
+modelo VARCHAR(100) NOT NULL,    
+ano INT NOT NULL,
+cor VARCHAR(50),    
+cliente_id INT NOT NULL,    
+CONSTRAINT fk_veiculo_cliente FOREIGN KEY (cliente_id) REFERENCES clientes(id) );
+
+CREATE TABLE ordens_servico (    
+id INT AUTO_INCREMENT PRIMARY KEY,    
+data_agendamento DATETIME NOT NULL,    
+box VARCHAR(50),    
+status_os VARCHAR(50) NOT NULL, 
+veiculo_id INT NOT NULL,    
+mecanico_id INT NOT NULL,    
+atendente_id INT,    
+CONSTRAINT fk_os_veiculo FOREIGN KEY (veiculo_id) REFERENCES veiculos(id),    
+CONSTRAINT fk_os_mecanico FOREIGN KEY (mecanico_id) REFERENCES usuarios(id),    
+CONSTRAINT fk_os_atendente FOREIGN KEY (atendente_id) REFERENCES usuarios(id) );
+
+CREATE TABLE pecas (    
+id INT AUTO_INCREMENT PRIMARY KEY,    
+nome_produto VARCHAR(100) NOT NULL,    
+categoria VARCHAR(100),    
+codigo VARCHAR(50) UNIQUE NOT NULL,    
+localizacao VARCHAR(50),    
+quantidade INT NOT NULL,    
+status_estoque VARCHAR(50) NOT NULL );
+
+CREATE TABLE os_pecas (    
+os_id INT NOT NULL,    
+peca_id INT NOT NULL,    
+quantidade_usada INT NOT NULL,    
+preco_unitario DECIMAL(10,2) NOT NULL,    
+PRIMARY KEY (os_id, peca_id),    
+CONSTRAINT fk_osp_os FOREIGN KEY (os_id) REFERENCES ordens_servico(id),    
+CONSTRAINT fk_osp_peca FOREIGN KEY (peca_id) REFERENCES pecas(id) );
+
+INSERT INTO clientes (nome_completo, cpf, email, telefone) 
+VALUES 
+('Carlos Silva', '111.222.333-44', 'carlos.silva@email.com', '(11) 98765-4321'), 
+('Ana Souza', '222.333.444-55', 'ana.souza@email.com', '(11) 91234-5678'), 
+('Marcos Oliveira', '333.444.555-66', 'marcos.oliveira@email.com', '(11) 99888-7766'), 
+('Juliana Costa', '444.555.666-77', 'juliana.costa@email.com', '(11) 97777-6655'), 
+('Roberto Dias', '555.666.777-88', 'roberto.dias@email.com', '(11) 96666-5544');
+
+INSERT INTO usuarios (nome_completo, cpf, email, telefone, nivel_acesso, senha) 
+VALUES 
+('Amanda Gerente', '999.888.777-66', 'amanda@thehub.com', '(11) 90000-1111', 'Gerente', 'hash_senha_1'), 
+('Bruno Atendente', '888.777.666-55', 'bruno@thehub.com', '(11) 90000-2222', 'Atendente', 'hash_senha_2'), 
+('João Mecânico', '777.666.554-44', 'joao.mecanico@thehub.com', '(11) 90000-3333', 'Mecânico', 'hash_senha_3'),
+('Pedro Mecânico', '666.554.443-33', 'pedro.mecanico@thehub.com', '(11) 90000-4444', 'Mecânico', 'hash_senha_4');
+
+INSERT INTO veiculos (placa, modelo, ano, cor, cliente_id) 
+VALUES 
+('ABC-1234', 'Volkswagen Gol', 2018, 'Prata', 1), 
+('XYZ-5678', 'Fiat Palio', 2015, 'Branco', 1), 
+('DEF-9012', 'Chevrolet Onix', 2020, 'Preto', 2), 
+('GHI-3456', 'Ford Ka', 2019, 'Vermelho', 2), 
+('JKL-7890', 'Hyundai HB20', 2021, 'Cinza', 3), 
+('MNO-2345', 'Toyota Corolla', 2022, 'Branco', 3), 
+('PQR-6789', 'Honda Civic', 2017, 'Preto', 4), 
+('STU-1239', 'Renault Sandero', 2016, 'Azul', 4), 
+('VWX-4567', 'Jeep Renegade', 2023, 'Verde', 5), 
+('YZA-8901', 'Nissan Versa', 2020, 'Prata', 5), 
+('BCD-2468', 'Volkswagen Fox', 2014, 'Vermelho', 1);
+
+INSERT INTO pecas (nome_produto, categoria, codigo, localizacao, quantidade, status_estoque) 
+VALUES 
+('Filtro de Óleo', 'Filtros', 'FLT-0012', 'A1-03', 25, 'Em estoque'), 
+('Pastilha de Freio Dianteira', 'Freios', 'FRD-0045', 'B2-10', 10, 'Em estoque'), 
+('Vela de Ignição', 'Ignição', 'VLG-0102', 'C1-01', 4, 'Estoque baixo'), 
+('Correia Dentada', 'Motor', 'COR-0089', 'A2-05', 8, 'Em estoque'), 
+('Filtro de Ar', 'Filtros', 'FLT-0015', 'A1-04', 15, 'Em estoque');
